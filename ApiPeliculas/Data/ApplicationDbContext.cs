@@ -11,6 +11,8 @@ namespace ApiPeliculas.Data
 
         //aqui es empezar a pasar todos los modelos/entidades
         public DbSet<Categoria> Categoria { get; set; } //si esta linea no exste no saldria tabal en migracion
+        public DbSet<Pelicula> Pelicula { get; set; }
+        public DbSet<Usuario> Usuario { get; set; }
 
     }
 }
