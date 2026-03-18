@@ -1,0 +1,72 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "PeliculasApi V2",
+    "description": "Api de Peliculas",
+    "termsOfService": "https://caro_apis/promociones",
+    "contact": {
+      "name": "caro_apis",
+      "url": "https://caro_apis/promociones"
+    },
+    "license": {
+      "name": "Licencia Personal",
+      "url": "https://caro_apis/promociones"
+    },
+    "version": "v2.0"
+  },
+  "paths": {
+    "/api/v2/categorias/GetString": {
+      "get": {
+        "tags": [
+          "CategoriasV"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "description": "Autenticación JWT usando el esquema Bearer. \r\n\r\nIngresa la palabra 'Bearer' seguido de un [espacio] y después su token.\r\n\r\nEjemplo: \"Bearer tkljk125jhhk\"",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
+}

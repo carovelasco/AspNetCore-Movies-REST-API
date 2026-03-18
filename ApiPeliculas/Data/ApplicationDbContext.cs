@@ -1,18 +1,22 @@
 ﻿using ApiPeliculas.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiPeliculas.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<AppUsuario>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext>options): base(options) //para que se puedan recibir todos los servicios que vienen de dbcontext
-        {   
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
         }
-
-        //aqui es empezar a pasar todos los modelos/entidades
-        public DbSet<Categoria> Categoria { get; set; } //si esta linea no exste no saldria tabal en migracion
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+        }
+        public DbSet<Categoria> Categoria { get; set; }
         public DbSet<Pelicula> Pelicula { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
-
+        public DbSet<AppUsuario> AppUsuario { get; set; }
     }
 }

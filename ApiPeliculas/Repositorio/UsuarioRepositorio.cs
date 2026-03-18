@@ -7,53 +7,80 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
 
 namespace ApiPeliculas.Repositorio
 {
     public class UsuarioRepositorio : IUsuarioRepositorio
     {
         private readonly ApplicationDbContext _context;
-        private readonly PasswordHasher<Usuario> _passwordHasher;
         private string claveSecreta;
+        private readonly UserManager<AppUsuario> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IMapper _mapper;
 
-        public UsuarioRepositorio(ApplicationDbContext context, IConfiguration config)
+        public UsuarioRepositorio(ApplicationDbContext context, IConfiguration config,
+            UserManager<AppUsuario> userManager, RoleManager<IdentityRole> roleManager, IMapper mapper)
         {
             _context = context;
-            _passwordHasher = new PasswordHasher<Usuario>();
             claveSecreta = config.GetValue<string>("ApiSettings:Secreta");
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _mapper = mapper;
         }
 
-        public Usuario getUsuario(int usuarioId)
+        public AppUsuario getUsuario(string usuarioId)
         {
-            return _context.Usuario.FirstOrDefault(c => c.Id == usuarioId);
+            return _context.AppUsuario.FirstOrDefault(c => c.Id == usuarioId);
         }
 
-        public ICollection<Usuario> getUsuarios()
+
+        public ICollection<AppUsuario> getUsuarios()
         {
-            return _context.Usuario.OrderBy(c => c.NombreUsuario).ToList();
+            return _context.AppUsuario.OrderBy(c => c.UserName).ToList();
         }
 
-        public async Task<Usuario> Registro(UsuarioRegistroDTO usuarioRegistroDto)
+        public async Task<UsuarioDatosDTO> Registro(UsuarioRegistroDTO usuarioRegistroDto)
         {
-            Usuario usuario = new Usuario()
+            AppUsuario usuario = new AppUsuario()
             {
-                NombreUsuario = usuarioRegistroDto.NombreUsuario,
+                UserName = usuarioRegistroDto.NombreUsuario,
                 Nombre = usuarioRegistroDto.Nombre,
-                Role = usuarioRegistroDto.Role
+                Email = usuarioRegistroDto.NombreUsuario,
+                NormalizedEmail = usuarioRegistroDto.NombreUsuario.ToUpper()
             };
 
-            usuario.Password = _passwordHasher.HashPassword(usuario, usuarioRegistroDto.Password);
+            var resultado = await _userManager.CreateAsync(usuario, usuarioRegistroDto.Password);
 
-            _context.Usuario.Add(usuario);
-            await _context.SaveChangesAsync();
+            if (resultado.Succeeded)
+            {
+                if (!await _roleManager.RoleExistsAsync("Admin"))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("Admin"));
+                    await _roleManager.CreateAsync(new IdentityRole("Registrado"));
+                }
+                await _userManager.AddToRoleAsync(usuario, "Admin");
 
-            return usuario;
+                var usuarioRetornado = _context.AppUsuario.FirstOrDefault(
+                    u => u.UserName == usuarioRegistroDto.NombreUsuario
+                );
+
+                return new UsuarioDatosDTO()
+                {
+                    Id = usuarioRetornado.Id,
+                    Username = usuarioRetornado.UserName,
+                    Nombre = usuarioRetornado.Nombre,
+                    Role = "Admin"
+                };
+            }
+
+            return new UsuarioDatosDTO();
         }
 
         public async Task<UsuarioLoginRespuestaDTO> Login(UsuarioLoginDTO usuariologinDto)
         {
-            var usuario = _context.Usuario.FirstOrDefault(
-                u => u.NombreUsuario.ToLower() == usuariologinDto.NombreUsuario.ToLower()
+            var usuario = _context.AppUsuario.FirstOrDefault(
+                u => u.UserName.ToLower() == usuariologinDto.NombreUsuario.ToLower()
             );
 
             if (usuario == null)
@@ -64,22 +91,19 @@ namespace ApiPeliculas.Repositorio
                     Usuario = null
                 };
             }
-            //hashing incluye salt y algorit seguros , por eso esto, en lugar de solo comaprar strings
-            var resultado = _passwordHasher.VerifyHashedPassword(
-                usuario,
-                usuario.Password,
-                usuariologinDto.Password
-            );
 
-            if (resultado == PasswordVerificationResult.Failed)
+            bool isValid = await _userManager.CheckPasswordAsync(usuario, usuariologinDto.Password);
+
+            if (!isValid)
             {
                 return new UsuarioLoginRespuestaDTO()
                 {
                     Token = "",
-                    Usuario = null
+                    Usuario = null,
                 };
             }
 
+            var roles = await _userManager.GetRolesAsync(usuario);
             var manejadorToken = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(claveSecreta);
 
@@ -87,8 +111,8 @@ namespace ApiPeliculas.Repositorio
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, usuario.NombreUsuario),
-                    new Claim(ClaimTypes.Role, usuario.Role)
+                    new Claim(ClaimTypes.Name, usuario.UserName.ToString()),
+                    new Claim(ClaimTypes.Role, roles.FirstOrDefault() ?? "")
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(
@@ -99,17 +123,34 @@ namespace ApiPeliculas.Repositorio
 
             var token = manejadorToken.CreateToken(tokenDescriptor);
 
+            // construir DTO manualmente para incluir el rol
+            UsuarioDatosDTO usuarioDto = new UsuarioDatosDTO()
+            {
+                Id = usuario.Id,
+                Username = usuario.UserName,
+                Nombre = usuario.Nombre,
+                Role = roles.FirstOrDefault() ?? ""
+            };
+
             return new UsuarioLoginRespuestaDTO()
             {
                 Token = manejadorToken.WriteToken(token),
-                Usuario = usuario
+                Usuario = usuarioDto,
+                Role = roles.FirstOrDefault() ?? ""
             };
         }
 
         public bool validarUsuario(string nombreUsuario)
         {
             // true = disponible
-            return !_context.Usuario.Any(u => u.NombreUsuario == nombreUsuario);
+            var usuarioBd = _context.AppUsuario.FirstOrDefault(
+                u => u.UserName.ToLower() == nombreUsuario.ToLower()
+            );
+            if (usuarioBd == null)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

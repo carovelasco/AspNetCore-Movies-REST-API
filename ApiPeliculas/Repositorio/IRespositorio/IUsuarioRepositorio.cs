@@ -6,14 +6,14 @@ namespace ApiPeliculas.Repositorio.IRespositorio
     public interface IUsuarioRepositorio
     {
         //aqui solo se definen los metodos 
-        ICollection<Usuario> getUsuarios();
+        ICollection<AppUsuario> getUsuarios();
 
-        Usuario getUsuario(int UsuarioId);
+        AppUsuario getUsuario(string UsuarioId);
         bool validarUsuario(string Usuario);
 
         //obtener la respuesta cuando se autentique
         Task<UsuarioLoginRespuestaDTO> Login(UsuarioLoginDTO usuariologinDto);
-        Task<Usuario> Registro(UsuarioRegistroDTO usuarioRegistroDto);
+        Task<UsuarioDatosDTO> Registro(UsuarioRegistroDTO usuarioRegistroDto);
 
 
     }
