@@ -63,14 +63,25 @@ namespace ApiPeliculas.Repositorio
             bool valor =  _context.Pelicula.Any(c => c.Nombre.ToLower().Trim() == nombre.ToLower().Trim());
             return valor;
         }
-        public ICollection<Pelicula> getPeliculas()
+
+        //V1
+        //public ICollection<Pelicula> getPeliculas()
+        //{
+        //    return _context.Pelicula
+        //        .Include(c => c.categoria)  // agregar esto
+        //        .OrderBy(c => c.Nombre)
+        //        .ToList();
+        //}
+
+        //V2: TIENE PAGINACION
+        public ICollection<Pelicula> getPeliculas(int pageNumber, int pageSize)
         {
             return _context.Pelicula
-                .Include(c => c.categoria)  // agregar esto
                 .OrderBy(c => c.Nombre)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToList();
         }
-
         public Pelicula getPelicula(int peliculaId)
         {
             return _context.Pelicula
@@ -90,6 +101,11 @@ namespace ApiPeliculas.Repositorio
                 .Include(ca => ca.categoria)
                 .Where(ca => ca.categoriaId == categoriaId)
                 .ToList();
+        }
+
+        public int getTotalPeliculas()
+        {
+            return _context.Pelicula.Count();
         }
     }
 }

@@ -5,7 +5,13 @@ namespace ApiPeliculas.Repositorio.IRespositorio
     public interface IPeliculaRepositorio
     {
         //aqui solo se definen los metodos 
-        ICollection<Pelicula> getPeliculas();
+
+        //V1
+        //ICollection<Pelicula> getPeliculas();
+
+        //V2
+        ICollection<Pelicula> getPeliculas(int pageNumber,int pageSize);
+        int getTotalPeliculas();
         ICollection<Pelicula> getPeliculasEnCategoria(int categoriaId);
         IEnumerable<Pelicula> BuscarPelicula(string nombre);
         Pelicula getPelicula(int peliculaId);

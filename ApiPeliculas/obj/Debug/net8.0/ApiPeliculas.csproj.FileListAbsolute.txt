@@ -155,3 +155,4 @@ C:\Users\gacavlfl\Desktop\API_curso\ApiPeliculas\ApiPeliculas\bin\Debug\net8.0\M
 C:\Users\gacavlfl\Desktop\API_curso\ApiPeliculas\ApiPeliculas\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
 C:\Users\gacavlfl\Desktop\API_curso\ApiPeliculas\ApiPeliculas\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
 C:\Users\gacavlfl\Desktop\API_curso\ApiPeliculas\ApiPeliculas\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+C:\Users\gacavlfl\Desktop\API_curso\ApiPeliculas\ApiPeliculas\bin\Debug\net8.0\ApiPeliculas.staticwebassets.runtime.json

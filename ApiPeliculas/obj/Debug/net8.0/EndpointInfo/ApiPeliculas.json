@@ -519,6 +519,26 @@
         "tags": [
           "PeliculasV"
         ],
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
         "responses": {
           "403": {
             "description": "Forbidden",
@@ -551,19 +571,58 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/CrearPeliculaDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CrearPeliculaDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CrearPeliculaDto"
+                "type": "object",
+                "properties": {
+                  "Nombre": {
+                    "type": "string"
+                  },
+                  "Descripcion": {
+                    "type": "string"
+                  },
+                  "Duracion": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "RutaImagen": {
+                    "type": "string"
+                  },
+                  "Imagen": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "Clasificacion": {
+                    "$ref": "#/components/schemas/CrearTipoClasificacion"
+                  },
+                  "categoriaId": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              },
+              "encoding": {
+                "Nombre": {
+                  "style": "form"
+                },
+                "Descripcion": {
+                  "style": "form"
+                },
+                "Duracion": {
+                  "style": "form"
+                },
+                "RutaImagen": {
+                  "style": "form"
+                },
+                "Imagen": {
+                  "style": "form"
+                },
+                "Clasificacion": {
+                  "style": "form"
+                },
+                "categoriaId": {
+                  "style": "form"
+                }
               }
             }
           }
@@ -719,19 +778,78 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/PeliculaDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PeliculaDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PeliculaDto"
+                "type": "object",
+                "properties": {
+                  "Id": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Nombre": {
+                    "type": "string"
+                  },
+                  "Descripcion": {
+                    "type": "string"
+                  },
+                  "Duracion": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "RutaImagen": {
+                    "type": "string"
+                  },
+                  "RutaLocalImagen": {
+                    "type": "string"
+                  },
+                  "Imagen": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "Clasificacion": {
+                    "$ref": "#/components/schemas/TipoClasificacion"
+                  },
+                  "FechaCreacion": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "categoriaId": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              },
+              "encoding": {
+                "Id": {
+                  "style": "form"
+                },
+                "Nombre": {
+                  "style": "form"
+                },
+                "Descripcion": {
+                  "style": "form"
+                },
+                "Duracion": {
+                  "style": "form"
+                },
+                "RutaImagen": {
+                  "style": "form"
+                },
+                "RutaLocalImagen": {
+                  "style": "form"
+                },
+                "Imagen": {
+                  "style": "form"
+                },
+                "Clasificacion": {
+                  "style": "form"
+                },
+                "FechaCreacion": {
+                  "style": "form"
+                },
+                "categoriaId": {
+                  "style": "form"
+                }
               }
             }
           }
@@ -1224,35 +1342,6 @@
         },
         "additionalProperties": false
       },
-      "CrearPeliculaDto": {
-        "type": "object",
-        "properties": {
-          "nombre": {
-            "type": "string",
-            "nullable": true
-          },
-          "descripcion": {
-            "type": "string",
-            "nullable": true
-          },
-          "duracion": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "rutaImagen": {
-            "type": "string",
-            "nullable": true
-          },
-          "clasificacion": {
-            "$ref": "#/components/schemas/CrearTipoClasificacion"
-          },
-          "categoriaId": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
       "CrearTipoClasificacion": {
         "enum": [
           0,
@@ -1262,43 +1351,6 @@
         ],
         "type": "integer",
         "format": "int32"
-      },
-      "PeliculaDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "nombre": {
-            "type": "string",
-            "nullable": true
-          },
-          "descripcion": {
-            "type": "string",
-            "nullable": true
-          },
-          "duracion": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "rutaImagen": {
-            "type": "string",
-            "nullable": true
-          },
-          "clasificacion": {
-            "$ref": "#/components/schemas/TipoClasificacion"
-          },
-          "fechaCreacion": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "categoriaId": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
       },
       "ProblemDetails": {
         "type": "object",
